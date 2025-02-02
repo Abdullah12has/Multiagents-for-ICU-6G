@@ -19,7 +19,8 @@ class Icsagents():
 
 	ollama_llm = LLM(
 		model = 'ollama/deepseek-r1:7b',
-		base_url = 'http://ollama:11434/api/generate',
+		base_url = 'http://localhost:11434',
+		# base_url = 'http://ollama:11434/api/generate',
         
 	)
 
