@@ -2,14 +2,14 @@
 FROM python:3.10
 
 # Set the working directory
-WORKDIR /
+WORKDIR /app
 
 # Copy the application files into the container
-COPY . .
+COPY . /app
 
 # Install dependencies
-RUN pip install --no-cache-dir crewai requests
-
+RUN pip install --no-cache-dir crewai crewai-tools requests
+COPY .env .env
 # Set environment variable to point to Ollama service
 ENV OLLAMA_API_BASE="http://ollama:11434"
 
