@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crewai-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crewai
+  template:
+    metadata:
+      labels:
+        app: crewai
+    spec:
+      containers:
+        - name: crewai
+          image: your-registry/crewai:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: OLLAMA_API_BASE
+              value: "http://ollama:11434"
+          command: ["python", "api.py"]

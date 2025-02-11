@@ -14,4 +14,4 @@ COPY .env .env
 ENV OLLAMA_API_BASE="http://ollama:11434"
 
 # Run the application
-CMD ["python", "main.py"]
+CMD ["python", "api.py"]

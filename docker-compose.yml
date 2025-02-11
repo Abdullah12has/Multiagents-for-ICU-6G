@@ -22,7 +22,7 @@ services:
         condition: service_healthy
     environment:
       - OLLAMA_API_BASE=http://ollama:11434
-    command: ["python", "main.py"]
+    command: ["python", "api.py"]
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
