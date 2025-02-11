@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MODEL_NAME="deepseek-r1:7b"
+MODEL_NAME="tinyllama"
 
 # Start Ollama in the background
 ollama serve &
