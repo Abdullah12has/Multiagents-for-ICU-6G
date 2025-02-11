@@ -4,81 +4,70 @@ from dotenv import load_dotenv
 from crewai.knowledge.source.string_knowledge_source import StringKnowledgeSource
 
 load_dotenv()
-# If you want to run a snippet of code before or after the crew starts, 
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
-
-
-file_path = "./src/icsagents/problems.txt"
-
-# Read the file and store its contents in a variable
-with open(file_path, "r", encoding="utf-8") as file:
-	content = file.read()
-print(content)
-
 
 @CrewBase
 class Icsagents():
-	"""Icsagents crew"""
+    """Icsagents crew"""
 
-	# Learn more about YAML configuration files here:
-	# Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-	# Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-	agents_config = 'config/agents.yaml'
-	tasks_config = 'config/tasks.yaml'
+    agents_config = 'config/agents.yaml'
+    tasks_config = 'config/tasks.yaml'
 
-	ollama_llm = LLM(
-		model = 'ollama/deepseek-r1:14b',
-		base_url = 'http://localhost:11434',
-		# base_url = 'http://ollama:11434/api/generate',
-        
-	)
-	# If you would like to add tools to your agents, you can learn more about it here:
-	# https://docs.crewai.com/concepts/agents#agent-tools
-	@agent
-	def math_researcher(self) -> Agent:
-		return Agent(
-			config=self.agents_config['math_researcher'],
-			llm=self.ollama_llm,
-			verbose=True
-		)
+    ollama_llm = LLM(
+        model='ollama/deepseek-r1:14b',
+        base_url='http://ollama:11434/api/generate',
+    )
 
-	@agent
-	def math_analyst(self) -> Agent:
-		return Agent(
-			config=self.agents_config['math_analyst'],
-			llm=self.ollama_llm,
-			verbose=True
-		)
+    @agent
+    def math_researcher(self, context_data) -> Agent:
+        """Agent that performs research based on the provided context."""
+        return Agent(
+            config=self.agents_config['math_researcher'],
+            llm=self.ollama_llm,
+            verbose=True,
+            memory=True,
+            additional_context={"context": context_data}  # Pass context dynamically
+        )
 
-	# To learn more about structured task outputs, 
-	# task dependencies, and task callbacks, check out the documentation:
-	# https://docs.crewai.com/concepts/tasks#overview-of-a-task
-	@task
-	def research_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['problem_breakdown_task'],
-		)
+    @agent
+    def math_analyst(self, context_data) -> Agent:
+        """Agent that analyzes mathematical data with context."""
+        return Agent(
+            config=self.agents_config['math_analyst'],
+            llm=self.ollama_llm,
+            verbose=True,
+            memory=True,
+            additional_context={"context": context_data}  # Pass context dynamically
+        )
 
-	@task
-	def reporting_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['solution_generation_task'],
-			output_file='report.md'
-		)
+    @task
+    def research_task(self, topic, context_data) -> Task:
+        """Task for breaking down problems with topic and context."""
+        return Task(
+            config=self.tasks_config['problem_breakdown_task'],
+            input_data={"topic": topic, "context": context_data}  # Pass topic & context
+        )
 
-	@crew
-	def crew(self) -> Crew:
-		"""Creates the Icsagents crew"""
-		# To learn how to add knowledge sources to your crew, check out the documentation:
-		# https://docs.crewai.com/concepts/knowledge#what-is-knowledge
-		string_source = StringKnowledgeSource(content=content)
-		return Crew(
-			agents=self.agents, # Automatically created by the @agent decorator
-			tasks=self.tasks, # Automatically created by the @task decorator
-			process=Process.sequential,
-			verbose=True,
-			knowledge_sources=[string_source],
-			# memory=True
-			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
-		)
+    @task
+    def reporting_task(self, context_data) -> Task:
+        """Task for generating reports using provided context."""
+        return Task(
+            config=self.tasks_config['solution_generation_task'],
+            input_data={"context": context_data},
+            output_file='report.md'
+        )
+
+    @crew
+    def crew(self, topic, context_data) -> Crew:
+        """Creates and executes the crew with provided topic and context."""
+        return Crew(
+            agents=[
+                self.math_researcher(context_data),
+                self.math_analyst(context_data)
+            ],
+            tasks=[
+                self.research_task(topic, context_data),
+                self.reporting_task(context_data)
+            ],
+            process=Process.sequential,
+            verbose=True
+        )

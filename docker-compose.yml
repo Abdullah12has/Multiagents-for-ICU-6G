@@ -17,6 +17,8 @@ services:
   crewai_app:
     build: ./src/icsagents/
     container_name: crewai_app
+    ports:
+      - "5000:5000"  # Expose Open WebUI on port 3000
     depends_on: 
       ollama:
         condition: service_healthy
