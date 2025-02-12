@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ollama
+  namespace: myapp  #
 spec:
   replicas: 1
   selector:
@@ -14,7 +15,8 @@ spec:
     spec:
       containers:
         - name: ollama
-          image: your-registry/ollama:latest  # Replace with actual registry if needed
+          image: my-ollama:latest # 
+          imagePullPolicy: Never  #
           ports:
             - containerPort: 11434
           volumeMounts:
@@ -24,14 +26,14 @@ spec:
             httpGet:
               path: /api/version
               port: 11434
-            initialDelaySeconds: 300
-            periodSeconds: 60
+            initialDelaySeconds: 60  # 
+            periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /api/version
               port: 11434
-            initialDelaySeconds: 60
-            periodSeconds: 30
+            initialDelaySeconds: 30  # ⬇️ Reduced to check sooner
+            periodSeconds: 15
       volumes:
         - name: ollama-storage
           persistentVolumeClaim:

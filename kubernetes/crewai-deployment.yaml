@@ -14,10 +14,12 @@ spec:
     spec:
       containers:
         - name: crewai
-          image: your-registry/crewai:latest
+          image: crewai:latest  # Using locally built image
+          imagePullPolicy: Never  # Prevent Kubernetes from pulling from Docker Hub
           ports:
             - containerPort: 5000
           env:
             - name: OLLAMA_API_BASE
               value: "http://ollama:11434"
-          command: ["python", "api.py"]
+          command: ["python3", "api.py"]
+      restartPolicy: Always  # Ensures the container restarts if it crashes

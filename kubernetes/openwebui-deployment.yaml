@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: open-webui
+  namespace: myapp  
 spec:
   replicas: 1
   selector:
@@ -15,6 +16,7 @@ spec:
       containers:
         - name: open-webui
           image: ghcr.io/open-webui/open-webui:main
+          imagePullPolicy: Always 
           ports:
             - containerPort: 3000
             - containerPort: 8080
@@ -30,3 +32,4 @@ spec:
         - name: webui-storage
           persistentVolumeClaim:
             claimName: webui-pvc
+
